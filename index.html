@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Spot The Phish</title>
+<style>
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial, sans-serif;
+    text-align:center;
+    margin:0;
+    padding:20px;
+}
+h1{ color:cyan; margin-bottom:6px; }
+#sender{ color:yellow; font-size:20px; margin-top:20px; }
+#subject{ color:white; font-size:18px; margin-top:10px; }
+#body{ color:lightgreen; margin:20px auto; max-width:700px; font-size:18px; white-space:pre-wrap; }
+button{ padding:12px 20px; margin:10px; font-size:16px; border:none; border-radius:5px; cursor:pointer; font-weight:bold; }
+#phishBtn{ background:red; color:white; }
+#safeBtn{ background:green; color:white; }
+#score{ font-size:20px; margin-top:10px; }
+#feedback{ margin-top:8px; font-weight:bold; height:24px; }
+.container{ max-width:900px; margin:0 auto; }
+.card{ background:rgba(255,255,255,0.03); padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
+.footer{ margin-top:18px; color:#9aa7c7; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>SPOT THE PHISH</h1>
+  <div id="score">Score: 0</div>
+
+  <div class="card">
+    <div id="sender"></div>
+    <div id="subject"></div>
+    <div id="body"></div>
+    <div id="feedback"></div>
+    <button id="phishBtn">REPORT PHISHING</button>
+    <button id="safeBtn">SAFE EMAIL</button>
+  </div>
+
+  <div class="footer">Tip: Look for urgent language, threats to your account, suspicious links, or sender mismatches.</div>
+</div>
+
+<script>
+// Emails dataset
+const emails = [
+  { sender: "Campus Library", subject: "Your reserved book is ready", body: "Your reserved book is ready to collect.", phish: false },
+  { sender: "IT Support", subject: "Verify your account today", body: "Your account will be suspended. Verify now by clicking the link below.", phish: true },
+  { sender: "Payroll Dept", subject: "Payroll update required", body: "We could not deposit your salary. Please update your banking details here: http://fake-bank.example", phish: true },
+  { sender: "Colleague: Alex", subject: "Lunch today?", body: "Want to grab lunch at 12:30? Meet by the cafe.", phish: false },
+  { sender: "Security Team", subject: "Password reset request", body: "A password reset was requested for your account. If this wasn't you, ignore. Otherwise reset: https://secure-reset.example", phish: true },
+  { sender: "Service Survey", subject: "Tell us about your experience", body: "Please complete this short survey to help us improve our services.", phish: false },
+  { sender: "Banking Alerts", subject: "Unusual activity detected", body: "We detected unusual activity. Log in immediately to secure your account: http://login.example", phish: true },
+  { sender: "Event Organizer", subject: "Event cancelled", body: "Due to unforeseen circumstances the event tomorrow is cancelled. Refunds will be processed automatically.", phish: false }
+];
+
+let score = 0;
+let currentIndex = null;
+
+// DOM refs
+const senderEl = document.getElementById('sender');
+const subjectEl = document.getElementById('subject');
+const bodyEl = document.getElementById('body');
+const scoreEl = document.getElementById('score');
+const feedbackEl = document.getElementById('feedback');
+const phishBtn = document.getElementById('phishBtn');
+const safeBtn = document.getElementById('safeBtn');
+
+function pickRandomEmail() {
+  currentIndex = Math.floor(Math.random() * emails.length);
+  const e = emails[currentIndex];
+  senderEl.textContent = "From: " + e.sender;
+  subjectEl.textContent = "Subject: " + e.subject;
+  bodyEl.textContent = e.body;
+  feedbackEl.textContent = "";
+}
+
+// respond to user's choice
+function handleChoice(isReportingPhish) {
+  const correct = emails[currentIndex].phish === isReportingPhish;
+  if (correct) {
+    score += 1;
+    feedbackEl.style.color = 'lightgreen';
+    feedbackEl.textContent = "Correct!";
+  } else {
+    score = Math.max(0, score - 1);
+    feedbackEl.style.color = 'salmon';
+    feedbackEl.textContent = "Incorrect.";
+  }
+  scoreEl.textContent = "Score: " + score;
+
+  // show a brief delay then next email
+  phishBtn.disabled = true;
+  safeBtn.disabled = true;
+  setTimeout(() => {
+    phishBtn.disabled = false;
+    safeBtn.disabled = false;
+    pickRandomEmail();
+  }, 900);
+}
+
+phishBtn.addEventListener('click', () => handleChoice(true));
+safeBtn.addEventListener('click', () => handleChoice(false));
+
+// Start game
+pickRandomEmail();
+</script>
+</body>
+</html>
